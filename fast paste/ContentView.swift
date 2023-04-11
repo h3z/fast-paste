@@ -18,6 +18,12 @@ struct ContentView: View {
     
     var body: some View {
         VStack{
+            Button(action: {
+                clipboardEntries.removeAll()
+            }) {
+                Text("Clear")
+            }
+            .padding(.top, 10)
             List(clipboardEntries, id: \.self) { entry in
                 Text(entry)
             }

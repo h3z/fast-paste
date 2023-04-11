@@ -6,12 +6,33 @@
 //
 
 import SwiftUI
+import KeyboardShortcuts
+
+
 
 @main
 struct fast_pasteApp: App {
+    @StateObject private var appState = AppState()
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            if appState.isUnicornMode {
+                ContentView()
+            }
+        }
+        Settings {
+            SettingsScreen()
+        }
+    }
+}
+
+
+@MainActor
+final class AppState: ObservableObject {
+    @Published var isUnicornMode: Bool = false
+    init() {
+        KeyboardShortcuts.onKeyUp(for: .toggleUnicornMode) { [self] in
+            isUnicornMode.toggle()
         }
     }
 }
