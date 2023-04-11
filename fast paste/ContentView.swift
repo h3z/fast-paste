@@ -11,6 +11,7 @@ struct ContentView: View {
     @State var clipboardEntries = ["Hello", "World"]
     @State var lastChangeCount: Int = 0
     @State var searchText = ""
+    @State var selection: Int?
     @State var selectedEntry: String? = "Hello"
     
     let pasteboard: NSPasteboard = .general
@@ -25,13 +26,31 @@ struct ContentView: View {
                 .textFieldStyle(.roundedBorder)
                 .padding()
             Divider()
-            List(filteredClipboardEntries, id: \.self, selection: $selectedEntry) { entry in
-                Text(entry)
+            List(selection: $selection) {
+                ForEach(clipboardEntries.indices, id: \.self) { index in
+                    Text(clipboardEntries[index]).tag(index)
+                }
             }
             .padding()
             .onAppear {
                 startTimer()
-                print("on appear")
+                
+                NSEvent.addLocalMonitorForEvents(matching: [.keyDown]) { nsevent in
+                    print(nsevent.keyCode)
+                    if selection != nil {
+                        if nsevent.keyCode == 125 { // arrow down
+                            selection = selection! < clipboardEntries.count ? selection! + 1 : 0
+                        } else {
+                            if nsevent.keyCode == 126 { // arrow up
+                                selection = selection! > 1 ? selection! - 1 : 0
+                            }
+                        }
+                    } else {
+                        selection = 0
+                    }
+                    return nsevent
+                }
+                
             }
             .onReceive(NotificationCenter.default.publisher(for: NSApplication.didHideNotification)) { _ in
                 searchText = ""
