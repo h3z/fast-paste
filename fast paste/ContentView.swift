@@ -24,12 +24,7 @@ struct ContentView: View {
             TextField("Search", text: $searchText)
                 .textFieldStyle(.roundedBorder)
                 .padding()
-            Button(action: {
-                clipboardEntries.removeAll()
-            }) {
-                Text("Clear")
-            }
-            .padding(.top, 10)
+            Divider()
             List(filteredClipboardEntries, id: \.self, selection: $selectedEntry) { entry in
                 Text(entry)
             }
@@ -42,6 +37,7 @@ struct ContentView: View {
                 searchText = ""
             }
         }
+        
     }
     
     func startTimer() {
