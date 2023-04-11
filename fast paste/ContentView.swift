@@ -14,23 +14,36 @@ import SwiftUI
 struct ContentView: View {
     @State var clipboardEntries = ["Hello", "World"]
     @State var lastChangeCount: Int = 0
+    @State var searchText = ""
     let pasteboard: NSPasteboard = .general
+    
+    var filteredClipboardEntries: [String] {
+        clipboardEntries.filter { searchText.isEmpty ? true: $0.localizedStandardContains(searchText) }
+        
+    }
     
     var body: some View {
         VStack{
+            TextField("Search", text: $searchText)
+                .textFieldStyle(.roundedBorder)
+                .padding()
             Button(action: {
                 clipboardEntries.removeAll()
             }) {
                 Text("Clear")
             }
-            .padding(.top, 10)
-            List(clipboardEntries, id: \.self) { entry in
+                .padding(.top, 10)
+            List(filteredClipboardEntries, id: \.self) { entry in
                 Text(entry)
             }
-            .padding()
-            .onAppear{
-                startTimer()
-            }
+                .padding()
+                .onAppear{
+                    startTimer()
+                    print("on appear")
+                }
+                .onReceive(NotificationCenter.default.publisher(for: NSApplication.didHideNotification)) { _ in
+                    searchText = ""
+                }
         }
     }
     

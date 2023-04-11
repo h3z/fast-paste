@@ -28,11 +28,10 @@ struct fast_pasteApp: App {
 
 @MainActor
 final class AppState: ObservableObject {
-    @Published var isUnicornMode: Bool = false
+    @Published var isUnicornMode: Bool = true
     init() {
         KeyboardShortcuts.onKeyDown(for: .toggleUnicornMode) { [self] in
             isUnicornMode.toggle()
-            print(isUnicornMode)
             if isUnicornMode {
                 NSApp.activate(ignoringOtherApps: true)
 
