@@ -88,6 +88,12 @@ struct ContentView: View {
                     clipboardEntries.append(read)
                 }
             }
+            if let frontmostApp = NSWorkspace.shared.frontmostApplication {
+                if frontmostApp.bundleIdentifier != Bundle.main.bundleIdentifier && !NSApp.isHidden{
+                    print("auto hide")
+                    NSApp.hide(nil)
+                }
+            }
         }
     }
 }
