@@ -15,6 +15,7 @@ struct ContentView: View {
     @State var selection = 0
     let pasteboard: NSPasteboard = .general
     
+    
     var filteredClipboardEntries: [String] {
         clipboardEntries.filter {
             searchText.isEmpty ? true : $0.localizedStandardContains(searchText)
@@ -26,12 +27,12 @@ struct ContentView: View {
             TextField("Search", text: $searchText, onEditingChanged: { isEditing in
                 selection = 0
             })
-                .onChange(of: appState.need_clear_search) { newValue in
-                    searchText = ""
-                    appState.need_clear_search = false
-                }
-                .textFieldStyle(.roundedBorder)
-                .padding()
+            .onChange(of: appState.need_clear_search) { newValue in
+                searchText = ""
+                appState.need_clear_search = false
+            }
+            .textFieldStyle(.roundedBorder)
+            .padding()
             Divider()
             List(selection: $selection) {
                 ForEach(filteredClipboardEntries.indices, id: \.self) { index in

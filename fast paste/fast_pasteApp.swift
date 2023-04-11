@@ -43,11 +43,6 @@ final class AppState: ObservableObject {
                 
             } else {
                 NSApp.hide(nil)
-//                if let frontmostApp = NSWorkspace.shared.frontmostApplication {
-//                    print(frontmostApp)
-//                    print("前台应用程序：\(frontmostApp.localizedName ?? "")")
-//                    print("前台应用程序：\(frontmostApp.bundleIdentifier ?? "")")
-//                }
             }
         }
     }
