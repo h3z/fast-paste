@@ -16,7 +16,7 @@ struct fast_pasteApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView().environmentObject(appState)
 
         }
         Settings {
@@ -28,15 +28,24 @@ struct fast_pasteApp: App {
 
 @MainActor
 final class AppState: ObservableObject {
-    @Published var isUnicornMode: Bool = true
+    @Published var sourceApp: NSRunningApplication = NSRunningApplication.current
     init() {
         KeyboardShortcuts.onKeyDown(for: .toggleUnicornMode) { [self] in
-            isUnicornMode.toggle()
-            if isUnicornMode {
+            if !NSApp.isActive {
+                if let frontmostApp = NSWorkspace.shared.frontmostApplication {
+                    self.sourceApp = frontmostApp
+                    print("Source App: \(self.sourceApp.localizedName ?? "")")
+                }
+                
                 NSApp.activate(ignoringOtherApps: true)
-
+                
             } else {
                 NSApp.hide(nil)
+//                if let frontmostApp = NSWorkspace.shared.frontmostApplication {
+//                    print(frontmostApp)
+//                    print("前台应用程序：\(frontmostApp.localizedName ?? "")")
+//                    print("前台应用程序：\(frontmostApp.bundleIdentifier ?? "")")
+//                }
             }
         }
     }

@@ -8,10 +8,11 @@
 import SwiftUI
 
 struct ContentView: View {
+    @EnvironmentObject var appState: AppState
     @State var clipboardEntries = ["Hello","Hello2", "World"]
     @State var lastChangeCount: Int = 0
     @State var searchText = ""
-    @State var selection: Int? = 0
+    @State var selection = 0
     let pasteboard: NSPasteboard = .general
     
     var filteredClipboardEntries: [String] {
@@ -47,16 +48,29 @@ struct ContentView: View {
     
     func addLocalMonitorForEvents() {
         NSEvent.addLocalMonitorForEvents(matching: [.keyDown]) { nsevent in
-            if selection != nil {
-                if nsevent.keyCode == 125 { // arrow down
-                    selection = selection! < filteredClipboardEntries.count - 1 ? selection! + 1 : selection!
-                } else {
-                    if nsevent.keyCode == 126 { // arrow up
-                        selection = selection! > 0 ? selection! - 1 : selection!
-                    }
+            print(nsevent.keyCode)
+            if nsevent.keyCode == 125 {
+                selection = selection < filteredClipboardEntries.count - 1 ? selection + 1 : selection
+            } else if nsevent.keyCode == 126 {
+                    selection = selection > 0 ? selection - 1 : selection
+            } else if nsevent.keyCode == 36 {
+                pasteboard.clearContents()
+                pasteboard.setString(filteredClipboardEntries[selection], forType: .string)
+                NSApp.hide(nil)
+                print(appState.sourceApp)
+
+                let pasteboard = NSPasteboard.general
+                if let string = pasteboard.string(forType: .string) {
+                    print("粘贴板内容：\(string)")
+                    appState.sourceApp.activate(options: .activateIgnoringOtherApps)
+                    let source = CGEventSource(stateID: .hidSystemState)
+                    let keyDown = CGEvent(keyboardEventSource: source, virtualKey: 9, keyDown: true)
+                    keyDown?.flags = CGEventFlags.maskCommand
+                    let keyUp = CGEvent(keyboardEventSource: source, virtualKey: 9, keyDown: false)
+                    keyUp?.flags = CGEventFlags.maskCommand
+                    keyDown?.post(tap: .cghidEventTap)
+                    keyUp?.post(tap: .cghidEventTap)
                 }
-            } else {
-                selection = 0
             }
             return nsevent
         }
