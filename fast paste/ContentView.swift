@@ -5,27 +5,22 @@
 //  Created by hzzz on 2023/4/11.
 //
 
-
 import SwiftUI
-
-
-
 
 struct ContentView: View {
     @State var clipboardEntries = ["Hello", "World"]
     @State var lastChangeCount: Int = 0
     @State var searchText = ""
-    @State var selectedEntry = "Hello"
+    @State var selectedEntry: String? = "Hello"
     
     let pasteboard: NSPasteboard = .general
     
     var filteredClipboardEntries: [String] {
-        clipboardEntries.filter { searchText.isEmpty ? true: $0.localizedStandardContains(searchText) }
-        
+        clipboardEntries.filter { searchText.isEmpty ? true : $0.localizedStandardContains(searchText) }
     }
     
     var body: some View {
-        VStack{
+        VStack {
             TextField("Search", text: $searchText)
                 .textFieldStyle(.roundedBorder)
                 .padding()
@@ -39,7 +34,7 @@ struct ContentView: View {
                 Text(entry)
             }
             .padding()
-            .onAppear{
+            .onAppear {
                 startTimer()
                 print("on appear")
             }
@@ -48,7 +43,6 @@ struct ContentView: View {
             }
         }
     }
-    
     
     func startTimer() {
         Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { timer in
@@ -61,6 +55,7 @@ struct ContentView: View {
         }
     }
 }
+
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
