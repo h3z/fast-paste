@@ -15,6 +15,8 @@ struct ContentView: View {
     @State var clipboardEntries = ["Hello", "World"]
     @State var lastChangeCount: Int = 0
     @State var searchText = ""
+    @State var selectedEntry = "Hello"
+    
     let pasteboard: NSPasteboard = .general
     
     var filteredClipboardEntries: [String] {
@@ -32,20 +34,21 @@ struct ContentView: View {
             }) {
                 Text("Clear")
             }
-                .padding(.top, 10)
-            List(filteredClipboardEntries, id: \.self) { entry in
+            .padding(.top, 10)
+            List(filteredClipboardEntries, id: \.self, selection: $selectedEntry) { entry in
                 Text(entry)
             }
-                .padding()
-                .onAppear{
-                    startTimer()
-                    print("on appear")
-                }
-                .onReceive(NotificationCenter.default.publisher(for: NSApplication.didHideNotification)) { _ in
-                    searchText = ""
-                }
+            .padding()
+            .onAppear{
+                startTimer()
+                print("on appear")
+            }
+            .onReceive(NotificationCenter.default.publisher(for: NSApplication.didHideNotification)) { _ in
+                searchText = ""
+            }
         }
     }
+    
     
     func startTimer() {
         Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { timer in
