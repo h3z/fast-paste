@@ -18,12 +18,13 @@ struct ContentView: View {
         clipboardEntries.filter {
             searchText.isEmpty ? true : $0.localizedStandardContains(searchText)
         }
-        
     }
     
     var body: some View {
         VStack {
-            TextField("Search", text: $searchText)
+            TextField("Search", text: $searchText, onEditingChanged: { isEditing in
+                selection = 0
+            })
                 .textFieldStyle(.roundedBorder)
                 .padding()
             Divider()
