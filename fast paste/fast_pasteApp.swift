@@ -16,9 +16,8 @@ struct fast_pasteApp: App {
     
     var body: some Scene {
         WindowGroup {
-            if appState.isUnicornMode {
-                ContentView()
-            }
+            ContentView()
+
         }
         Settings {
             SettingsScreen()
@@ -29,10 +28,16 @@ struct fast_pasteApp: App {
 
 @MainActor
 final class AppState: ObservableObject {
-    @Published var isUnicornMode: Bool = false
+    var isUnicornMode: Bool = false
     init() {
         KeyboardShortcuts.onKeyUp(for: .toggleUnicornMode) { [self] in
             isUnicornMode.toggle()
+            print(isUnicornMode)
+            if isUnicornMode {
+                NSApp.activate(ignoringOtherApps: true)
+            } else {
+                NSApp.hide(nil)
+            }
         }
     }
 }
