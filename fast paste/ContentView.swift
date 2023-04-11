@@ -26,6 +26,10 @@ struct ContentView: View {
             TextField("Search", text: $searchText, onEditingChanged: { isEditing in
                 selection = 0
             })
+                .onChange(of: appState.need_clear_search) { newValue in
+                    searchText = ""
+                    appState.need_clear_search = false
+                }
                 .textFieldStyle(.roundedBorder)
                 .padding()
             Divider()
@@ -52,13 +56,13 @@ struct ContentView: View {
             if nsevent.keyCode == 125 {
                 selection = selection < filteredClipboardEntries.count - 1 ? selection + 1 : selection
             } else if nsevent.keyCode == 126 {
-                    selection = selection > 0 ? selection - 1 : selection
+                selection = selection > 0 ? selection - 1 : selection
             } else if nsevent.keyCode == 36 {
                 pasteboard.clearContents()
                 pasteboard.setString(filteredClipboardEntries[selection], forType: .string)
                 NSApp.hide(nil)
                 print(appState.sourceApp)
-
+                
                 let pasteboard = NSPasteboard.general
                 if let string = pasteboard.string(forType: .string) {
                     print("粘贴板内容：\(string)")

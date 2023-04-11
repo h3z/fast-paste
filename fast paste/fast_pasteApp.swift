@@ -29,11 +29,13 @@ struct fast_pasteApp: App {
 @MainActor
 final class AppState: ObservableObject {
     @Published var sourceApp: NSRunningApplication = NSRunningApplication.current
+    @Published var need_clear_search = false
     init() {
         KeyboardShortcuts.onKeyDown(for: .toggleUnicornMode) { [self] in
             if !NSApp.isActive {
                 if let frontmostApp = NSWorkspace.shared.frontmostApplication {
                     self.sourceApp = frontmostApp
+                    self.need_clear_search = true
                     print("Source App: \(self.sourceApp.localizedName ?? "")")
                 }
                 
