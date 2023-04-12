@@ -13,10 +13,14 @@ import KeyboardShortcuts
 @main
 struct fast_pasteApp: App {
     @StateObject private var appState = AppState()
-    
+    let persistenceController = PersistenceController.shared
+
+
     var body: some Scene {
         WindowGroup {
-            ContentView().environmentObject(appState)
+            ContentView()
+                .environmentObject(appState)
+                .environment(\.managedObjectContext, persistenceController.container.viewContext)
 
         }
         Settings {

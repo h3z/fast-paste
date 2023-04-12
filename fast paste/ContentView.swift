@@ -8,20 +8,25 @@
 import SwiftUI
 
 struct ContentView: View {
+    @Environment(\.managedObjectContext) private var viewContext
     @EnvironmentObject var appState: AppState
-    @State var clipboardEntries = ["Hello","Hello2", "World"]
+    @FetchRequest(
+        entity: CopyItem.entity(),
+        sortDescriptors: [ NSSortDescriptor(keyPath: \CopyItem.date ,ascending: false) ]
+    ) var clipboardEntries: FetchedResults<CopyItem>
+    
+    
     @State var lastChangeCount: Int = 0
     @State var searchText = ""
     @State var selection = 0
     let pasteboard: NSPasteboard = .general
-    
-    
-    var filteredClipboardEntries: [String] {
+
+    var filteredClipboardEntries: [CopyItem] {
         clipboardEntries.filter {
-            searchText.isEmpty ? true : $0.localizedStandardContains(searchText)
+            searchText.isEmpty ? true : $0.content!.localizedStandardContains(searchText)
         }
     }
-    
+
     var body: some View {
         VStack {
             TextField("Search", text: $searchText, onEditingChanged: { isEditing in
@@ -36,11 +41,14 @@ struct ContentView: View {
             Divider()
             List(selection: $selection) {
                 ForEach(filteredClipboardEntries.indices, id: \.self) { index in
-                    Text(filteredClipboardEntries[index]).tag(index)
+                    Text(filteredClipboardEntries[index].content!).tag(index)
                 }
             }
             .padding()
             .onAppear {
+                if self.lastChangeCount == 0 {
+                    self.lastChangeCount = self.pasteboard.changeCount
+                }
                 startTimer()
                 addLocalMonitorForEvents()
             }
@@ -60,7 +68,7 @@ struct ContentView: View {
                 selection = selection > 0 ? selection - 1 : selection
             } else if nsevent.keyCode == 36 {
                 pasteboard.clearContents()
-                pasteboard.setString(filteredClipboardEntries[selection], forType: .string)
+                pasteboard.setString(filteredClipboardEntries[selection].content!, forType: .string)
                 NSApp.hide(nil)
                 print(appState.sourceApp)
                 
@@ -85,7 +93,14 @@ struct ContentView: View {
             if self.lastChangeCount != self.pasteboard.changeCount {
                 self.lastChangeCount = self.pasteboard.changeCount
                 if let read = self.pasteboard.string(forType: .string) {
-                    clipboardEntries.append(read)
+                    let copyItem = CopyItem(context: viewContext)
+                    copyItem.date = Date()
+                    copyItem.content = read
+                    if let frontmostApp = NSWorkspace.shared.frontmostApplication {
+                        copyItem.sourceApp = frontmostApp.bundleIdentifier
+                    }
+                    print(copyItem)
+                    PersistenceController.shared.save()
                 }
             }
             if let frontmostApp = NSWorkspace.shared.frontmostApplication {
